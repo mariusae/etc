@@ -1,8 +1,12 @@
+MKSHELL=$PLAN9/bin/rc
+
 <$PLAN9/src/mkhdr
 
-TARG=cursel backingscale expandclasses
+TARG=cursel backingscale expandclasses printmonth
 
 <$PLAN9/src/mkmany
+
+CLEANFILES=$CLEANFILES *.native
 
 $O.backingscale: backingscale-objc.o
 	$LD -o $target $prereq
@@ -10,14 +14,15 @@ $O.backingscale: backingscale-objc.o
 %-objc.$O: %.m
 	$CC $CFLAGS -o $target $stem.m
 
-$O.expandclasses: expandclasses.native
-	cp expandclasses.native o.expandclasses
+$O.%:	%.sml
+	mlton -output $target $stem.mlb
 
-%.native: %.ml
+$O.%: 	%.ml
 	corebuild -no-hygiene $stem.native
+	cp $stem.native $target
 
-MKSHELL=$PLAN9/bin/rc
+reallyclean:V: clean
+	/bin/rm -rf _build .cm
 
-install:V: all
+install:V:
 	cp o.expandclasses /Users/marius/bin/darwin/x86_64/pants/expandclasses
-	
