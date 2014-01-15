@@ -2,11 +2,14 @@ MKSHELL=$PLAN9/bin/rc
 
 <$PLAN9/src/mkhdr
 
-TARG=cursel backingscale expandclasses printmonth
+TARG=cursel backingscale expandclasses  zk
 
 <$PLAN9/src/mkmany
 
 CLEANFILES=$CLEANFILES *.native
+
+o.zk: zk.o
+	$LD $LDFLAGS -L/usr/local/lib -lzookeeper_mt -o $target zk.o
 
 $O.backingscale: backingscale-objc.o
 	$LD -o $target $prereq
