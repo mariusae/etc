@@ -1,6 +1,8 @@
 structure Main =
 struct
 
+exception BadMonth
+
 local
   val oneDay = Time.fromSeconds (60*60*24)
   open Time
@@ -27,6 +29,7 @@ fun monthFromString s =
   | "Apr" => SOME Date.Apr | "May" => SOME Date.May | "Jun" => SOME Date.Jun
   | "Jul" => SOME Date.Jul | "Aug" => SOME Date.Aug | "Sep" => SOME Date.Sep
   | "Oct" => SOME Date.Oct | "Nov" => SOME Date.Nov | "Dec" => SOME Date.Dec
+  | _ => raise BadMonth
 
 
 fun printDate d =
@@ -57,16 +60,22 @@ fun usage () =
   OS.Process.failure
 
 fun main (name, [month, year]) =
-  case (monthFromString month, Int.fromString year) of
-    (SOME m, SOME y) => main' (m, y)
-  | _ => usage ()
-and main (name, [month]) = main (name, [month, "2014"])
-and main (name, []) = main (name, ["Jan", "2014"])
+  let
+    val m = monthFromString month
+    val y = Int.fromString year
+  in
+    case (m, y) of
+      (SOME m, SOME y) => main' (m, y)
+    | _ => usage ()
+  end
+| main (name, [month]) = main (name, [month, "2014"])
+| main (name, nil) = main (name, ["Jan", "2014"])
+| main (name, _) = usage()
 
 and main' (m, y) =
   let
     val first = Date.date {
-      year = y date, month = m, day = 1, 
+      year = y, month = m, day = 1, 
       hour = 0, minute = 0, second = 0, 
       offset = NONE}
   in
