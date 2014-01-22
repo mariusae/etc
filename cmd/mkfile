@@ -2,7 +2,7 @@ MKSHELL=$PLAN9/bin/rc
 
 <$PLAN9/src/mkhdr
 
-TARG=cursel backingscale expandclasses  zk printmonth
+TARG=cursel backingscale expandclasses  zk month txt
 
 <$PLAN9/src/mkmany
 

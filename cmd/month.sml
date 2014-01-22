@@ -11,6 +11,8 @@ in
   fun day1 d = fromTimeLocal ((toTime d)+oneDay)
 end
 
+val lower = String.implode o map Char.toLower o String.explode
+
 fun weekDayString d =
   case d of 
     Date.Mon => "Mon" | Date.Tue => "Tue" | Date.Wed => "Wed" | Date.Thu => "Thu"
@@ -24,11 +26,11 @@ fun monthString m =
 
 
 fun monthFromString s =
-  case s of
-    "Jan" => SOME Date.Jan | "Feb" => SOME Date.Feb | "Mar" => SOME Date.Mar
-  | "Apr" => SOME Date.Apr | "May" => SOME Date.May | "Jun" => SOME Date.Jun
-  | "Jul" => SOME Date.Jul | "Aug" => SOME Date.Aug | "Sep" => SOME Date.Sep
-  | "Oct" => SOME Date.Oct | "Nov" => SOME Date.Nov | "Dec" => SOME Date.Dec
+  case lower s of
+    "jan" => SOME Date.Jan | "feb" => SOME Date.Feb | "mar" => SOME Date.Mar
+  | "apr" => SOME Date.Apr | "may" => SOME Date.May | "jun" => SOME Date.Jun
+  | "jul" => SOME Date.Jul | "aug" => SOME Date.Aug | "sep" => SOME Date.Sep
+  | "oct" => SOME Date.Oct | "nov" => SOME Date.Nov | "dec" => SOME Date.Dec
   | _ => raise BadMonth
 
 
