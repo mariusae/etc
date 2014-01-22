@@ -92,7 +92,7 @@ xwrite(int argc, char **argv)
 	if(argc < 2)
 		usage();
 		
-	/* Truncate first, best effort! */
+	/* Truncate first; best effort! */
 	zoo_delete(zh, argv[1], -1);
 
 	m = readn(0, buf, n);
@@ -112,15 +112,19 @@ xls(int argc, char **argv)
 {
 	struct String_vector cs;
 	int rv, i;
+	char *sep = "/";
 
 	if(argc < 2)
 		usage();
+	
+	if(argv[1][0] != '\0' && argv[1][strlen(argv[1])-1] == '/')
+		sep = "";
 
 	if((rv=zoo_get_children(zh, argv[1], 0, &cs)) != ZOK)
 		zfatal("zoo_get_children", rv);
-	
+
 	for(i=0; i<cs.count; i++)
-		fprint(1, "%s/%s\n", argv[1], cs.data[i]);
+		fprint(1, "%s%s%s\n", argv[1], sep, cs.data[i]);
 }
 
 void 
