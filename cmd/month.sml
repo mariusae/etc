@@ -58,31 +58,41 @@ fun enum first =
     go first
   end
   
-fun usage () = 
-  OS.Process.failure
 
-fun main (name, [month, year]) =
-  let
-    val m = monthFromString month
-    val y = Int.fromString year
-  in
-    case (m, y) of
-      (SOME m, SOME y) => main' (m, y)
-    | _ => usage ()
-  end
-| main (name, [month]) = main (name, [month, "2014"])
-| main (name, nil) = main (name, ["Jan", "2014"])
-| main (name, _) = usage()
+local
+  fun usage () = OS.Process.failure
+  
+  val thisDate = Date.fromTimeLocal (Time.now ())
+  val thisMonth = monthString (Date.month thisDate)
+  val thisYear = Int.toString (Date.year thisDate)
+  
+in
 
-and main' (m, y) =
-  let
-    val first = Date.date {
-      year = y, month = m, day = 1, 
-      hour = 0, minute = 0, second = 0, 
-      offset = NONE}
-  in
-    enum first;
-    OS.Process.success
-  end
+  fun main (name, [month, year]) =
+    let
+      val m = monthFromString month
+      val y = Int.fromString year
+    in
+      case (m, y) of
+        (SOME m, SOME y) => main' (m, y)
+      | _ => usage ()
+    end
+  | main (name, [month]) = main (name, [month, thisYear])
+  | main (name, nil) = main (name, [thisMonth, thisYear])
+  | main (name, _) = usage()
+  
+  and main' (m, y) =
+    let
+      val first = Date.date {
+        year = y, month = m, day = 1, 
+        hour = 0, minute = 0, second = 0, 
+        offset = NONE}
+    in
+      print ((monthString m)^"/"^(Int.toString y)^"\n");
+      enum first;
+      OS.Process.success
+    end
+
+end
 
 end

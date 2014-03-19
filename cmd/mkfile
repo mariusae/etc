@@ -2,7 +2,7 @@ MKSHELL=$PLAN9/bin/rc
 
 <$PLAN9/src/mkhdr
 
-TARG=cursel backingscale expandclasses  zk month txt
+TARG=cursel backingscale expandclasses  zk month #txt
 
 <$PLAN9/src/mkmany
 
@@ -28,4 +28,5 @@ reallyclean:V: clean
 	/bin/rm -rf _build .cm
 
 install:V:
+	mkdir -p /Users/marius/bin/darwin/x86_64/pants
 	cp o.expandclasses /Users/marius/bin/darwin/x86_64/pants/expandclasses
