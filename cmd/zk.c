@@ -18,6 +18,7 @@ void xread(int, char**);
 void xwrite(int, char**);
 void xls(int, char**);
 void xrm(int, char**);
+void xkill(int, char**);
 
 void zklog(const char*);
 void zfatal(char*, int);
@@ -57,6 +58,8 @@ main(int argc, char **argv)
 		xls(argc, argv);
 	else if(strcmp("rm", argv[0]) == 0)
 		xrm(argc, argv);
+	else if(strcmp("kill", argv[0]) == 0)
+		xkill(argc, argv);
 	else
 		usage();
 	
@@ -139,12 +142,67 @@ xrm(int argc, char **argv)
 		zfatal("zoo_delete", rv);
 }
 
+void 
+xkill(int argc, char **argv)
+{
+	int rv;
+	clientid_t id;
+	struct String_vector cs;
+
+
+	if(argc < 2)
+		usage();
+
+	if((rv=zookeeper_close(zh)) != ZOK)
+		zfatal("zookeeper_close", rv);
+
+	id.client_id = strtoull(argv[1], nil, 16);
+	*id.passwd = 0;
+
+	fprint(2, "client id %llx\n", id.client_id);
+
+	zh = zookeeper_init2(hostlist, 0, 10000, &id, 0, 0, zklog);
+	if(zh == nil){
+		fprint(2, "zookeeper_init2 failed\n");
+		exits("zk");
+	}
+
+	/* Actually connect */
+	zoo_get_children(zh, "/", 0, &cs);
+	while(zoo_state(zh)!=ZOO_CONNECTED_STATE){
+		if(zoo_state(zh)==ZOO_EXPIRED_SESSION_STATE){
+			zookeeper_close(zh);
+			zh = zookeeper_init2(hostlist, 0, 10000, &id, 0, 0, zklog);
+		}
+		sleep(1);
+	}
+
+	rv = zoo_state(zh);
+	if(rv == ZOO_EXPIRED_SESSION_STATE)
+		fprint(2, "expired session\n");
+	else if(rv == ZOO_AUTH_FAILED_STATE)
+		fprint(2, "auth failed\n");
+	else if(rv == ZOO_ASSOCIATING_STATE)
+		fprint(2, "associating\n");
+	else if(rv == ZOO_NOTCONNECTED_STATE)
+		fprint(2, "not connected\n");
+	else if(rv == ZOO_CONNECTED_STATE)
+		fprint(2, "connected\n");
+
+/*ZOOAPI const clientid_t *zoo_client_id(zhandle_t *zh);*/
+
+/*ZOOAPI int zoo_state(zhandle_t *zh);*/
+
+	if((rv=zookeeper_close(zh)) != ZOK)
+		zfatal("zookeeper_close", rv);
+}
+
 void
 zklog(const char *message)
 {
 	if(!chatty)
 		return;
-	
+
 	fprint(2, "zk: %s\n", message);
 }
 
